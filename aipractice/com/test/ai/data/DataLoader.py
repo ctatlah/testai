@@ -14,12 +14,8 @@ class LoadData(object):
     '''
 
     def __init__(self):
-        self.fname = ''
-        self.data = []
-        self.datax = []
-        self.datay = []
         self.resFolder = Path('/Users/ctatlah/git/testai/aipractice/com/test/ai/resources')
-    
+      
     def read(self, filename):
         '''
         Loads data from file
@@ -28,21 +24,37 @@ class LoadData(object):
         Returns:
           data (ndarray (n)) : n rows of data from file
         '''
-        self.fname = filename
-        fileToOpen = self.resFolder / self.fname
-        print(f'Reading data from file "{self.fname}": .', end='')
+        data = []
+        fileToOpen = self.resFolder / filename
+        print(f'Reading data from file "{filename}": .', end='')
         numLines = 0
         with open(fileToOpen, 'r') as f:
             for line in f:
                 line = line.strip()
-                self.data.append(
+                if line == '':
+                    continue # ignore empty line
+                data.append(
                     list(np.fromstring(line, dtype=int, sep=","))
                 )
                 print('.',end='')
                 numLines += 1
         print(f' Done. There were {numLines} lines read!')
         
-        return self.data
+        return data
+    
+    def readData(self, xfilename, yfilename):
+        '''
+        Loads data from file
+        Args:
+          xfilename (string) : filename for x data
+          yfilename (string) : filename for y data
+        Returns:
+          xdata (ndarray (n)) : n rows of x data from file
+          ydata (ndarray (n)) : m rows of y data from file
+        '''
+        datax = self.read(xfilename)
+        datay = self.read(yfilename)
+        return datax, datay
     
     def readTrainingData(self, filename):
         '''
@@ -53,9 +65,10 @@ class LoadData(object):
           xdata (ndarray (n)) : n rows of x data from file
           ydata (ndarray (m)) : m rows of y data from file
         '''
-        self.fname = filename
-        fileToOpen = self.resFolder / self.fname
-        print(f'Reading data from file "{self.fname}": .', end='')
+        datax = []
+        datay = []
+        fileToOpen = self.resFolder / filename
+        print(f'Reading data from file "{filename}": .', end='')
         numXLines = 0
         numYLines = 0
         isXData = False
@@ -76,12 +89,12 @@ class LoadData(object):
                 
                 # reading data and storing in correct place
                 if isXData:
-                    self.datax.append(
+                    datax.append(
                         list(np.fromstring(line, dtype=int, sep=","))
                         )
                     numXLines += 1
                 else:
-                    self.datay.append(
+                    datay.append(
                         list(np.fromstring(line, dtype=int, sep=","))
                         )
                     numYLines += 1
@@ -90,4 +103,4 @@ class LoadData(object):
         print(f'There were {numXLines} lines of x data read.')
         print(f'There were {numYLines} lines of y data read.')
         
-        return self.datax, self.datay
+        return datax, datay
