@@ -56,6 +56,31 @@ class LoadData(object):
         datay = self.read(yfilename)
         return datax, datay
     
+    def readDataNpy(self, xfilename, yfilename):
+        '''
+        Loads first 1000 items from npy file
+        Args:
+          xfilename (string) : npy type filename for x data
+          yfilename (string) : npy type filename for y data
+        Returns:
+          xdata (ndarray (n)) : n rows of x data from file
+          ydata (ndarray (n)) : m rows of y data from file
+        '''
+        print(f'Loading x data from file "{xfilename}"...', end='')
+        xfileToOpen = self.resFolder / xfilename
+        X = np.load(xfileToOpen)
+        print('Done!')
+        
+        print(f'Loading y data from file "{yfilename}"...', end='')
+        yfileToOpen = self.resFolder / yfilename
+        y = np.load(yfileToOpen)
+        print('Done!')
+        
+        X = X[0:1000]
+        y = y[0:1000]
+        
+        return X, y
+    
     def readTrainingData(self, filename):
         '''
         Loads data from file for AI training
@@ -104,3 +129,4 @@ class LoadData(object):
         print(f'There were {numYLines} lines of y data read.')
         
         return datax, datay
+    
