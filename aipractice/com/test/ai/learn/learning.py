@@ -11,6 +11,7 @@ import tensorflow as tf
 import tensorflow.keras as tfk #@UnresolvedImport
 from tensorflow.keras.models import Sequential #@UnresolvedImport
 from tensorflow.keras.layers import Dense #@UnresolvedImport
+from com.test.ai.data.DataLoader import LoadData
 import logging
 
 #
@@ -23,17 +24,13 @@ tf.autograph.set_verbosity(0)
 # work
 #
 
+print ("here we go with the test app")
+
 # data
-label = "test"
-x = np.array([[200,20],
-             [150,15],
-             [275,17],
-             [200,17]])
-y = np.array([[1],
-              [0],
-              [0],
-              [1]])
-print (f"here we go with the *{label}* app")
+loadData = LoadData()
+xData, yData = loadData.readTrainingData('test_data_ai.txt')
+x = np.array(xData)
+y = np.array(yData)
 
 # setup model
 tf.random.set_seed(1234)  # applied to achieve consistent results
