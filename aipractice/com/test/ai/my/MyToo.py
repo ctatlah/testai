@@ -28,3 +28,6 @@ print(f'printing data...\n{data}')
 xdata, ydata = loadData.readTrainingData('test_data_ai.txt')
 print(f'printing xdata...\n{xdata} \nprinting ydata...\n{ydata}')
 
+xdata, ydata = loadData.readData('test_data_ai_x.txt', 'test_data_ai_y.txt')
+print(f'printing xdata...\n{xdata} \nprinting ydata...\n{ydata}')
+

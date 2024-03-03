@@ -28,7 +28,7 @@ print ("here we go with the test app")
 
 # data
 loadData = LoadData()
-xData, yData = loadData.readTrainingData('test_data_ai.txt')
+xData, yData = loadData.readData('test_data_ai_x.txt', 'test_data_ai_y.txt')
 x = np.array(xData)
 y = np.array(yData)
 
