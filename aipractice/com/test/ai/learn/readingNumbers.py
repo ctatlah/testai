@@ -7,11 +7,12 @@ Created on Mar 2, 2024
 # imports
 #
 import com.test.ai.utils.visualUtils as visUtil
+import com.test.ai.utils.dataUtils as dataUtil
 import tensorflow as tf
 import tensorflow.keras as tfk #@UnresolvedImport
 from tensorflow.keras.models import Sequential #@UnresolvedImport
 from tensorflow.keras.layers import Dense #@UnresolvedImport
-from com.test.ai.data.DataLoader import LoadData
+
 import logging
 
 #
@@ -28,8 +29,7 @@ print ('Here we go, going to try to read numbers')
 
 # data
 #
-loadData = LoadData()
-x, y = loadData.readDataNpy('test_data_ai_x.npy', 'test_data_ai_y.npy')
+x, y = dataUtil.loadDataForNumberPerdiction()
 
 
 # setup model
