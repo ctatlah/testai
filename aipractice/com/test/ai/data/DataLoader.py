@@ -70,11 +70,13 @@ class LoadData(object):
         xfileToOpen = self.resFolder / xfilename
         X = np.load(xfileToOpen)
         print('Done!')
+        print(f'Shape of x is : {str(X.shape)}')
         
         print(f'Loading y data from file "{yfilename}"...', end='')
         yfileToOpen = self.resFolder / yfilename
         y = np.load(yfileToOpen)
         print('Done!')
+        print(f'Shape of y is : {str(y.shape)}')
         
         X = X[0:1000]
         y = y[0:1000]
