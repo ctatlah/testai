@@ -78,9 +78,6 @@ class LoadData(object):
         print('Done!')
         print(f'Shape of y is : {str(y.shape)}')
         
-        X = X[0:1000]
-        y = y[0:1000]
-        
         return X, y
     
     def readTrainingData(self, filename):
