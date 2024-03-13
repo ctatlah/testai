@@ -7,13 +7,16 @@ Created on Mar 3, 2024
 import numpy as np
 import matplotlib.pyplot as plt
 
-def visualizeNumberPrediction(x, y, model):
+def visualizeNumberPrediction(x, y, model, predictLogic):
     '''
     Creates a plt to visualize number reading data
     Args:
       x (narray(n)) : data to plot
       y (narray(n)) : expected data
       model (Sequential) : tenserflow sequential neural network model
+      predictLogic (func(d,m) : logic to use to make prediction
+              d -- data at some random index
+              m -- neural network model
     Output:
       Plot of visual number data
     Borrowed code from deeplearning.ai and modified slightly
@@ -34,8 +37,7 @@ def visualizeNumberPrediction(x, y, model):
         ax.imshow(x_random_reshaped, cmap='gray')
         
         # Predict using the Neural Network
-        prediction = model.predict(x[random_index].reshape(1,400))
-        prediction = 1 if prediction >= 0.5 else 0
+        prediction = predictLogic(x[random_index], model)
         
         # Display the label above the image
         ax.set_title(f"{y[random_index,0]},{prediction}")

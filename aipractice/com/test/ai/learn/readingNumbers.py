@@ -40,7 +40,7 @@ x, y = dataUtil.loadDataForNumberPerdiction()
 print('Setting up model...')
 model = Sequential(
     [
-        tfk.Input(shape=(400,)), 
+        tfk.Input(shape=(400,)), # data shape
         Dense(25, activation='sigmoid', name='layer1'),
         Dense(15, activation='sigmoid', name='layer2'),
         Dense(1,  activation='sigmoid', name='layer3')
@@ -76,8 +76,13 @@ print(f'Predicting a one:  {prediction}')
 prediction = 1 if prediction >= 0.5 else 0
 print(f'Predicting a one: {prediction}' )
 
+def predictNumber(d, m):
+    p = m.predict(d.reshape(1,400))
+    p = 1 if p >= 0.5 else 0
+    return p
 
 # visualize prediction
 #
 print ('Visualize prediction data...')
-visUtil.visualizeNumberPrediction(x, y, model)
+visUtil.visualizeNumberPrediction(x, y, model, predictNumber)
+
