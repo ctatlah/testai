@@ -58,7 +58,7 @@ class LoadData(object):
     
     def readDataNpy(self, xfilename, yfilename):
         '''
-        Loads first 1000 items from npy file
+        Loads items from npy file
         Args:
           xfilename (string) : npy type filename for x data
           yfilename (string) : npy type filename for y data
@@ -128,4 +128,27 @@ class LoadData(object):
         print(f'There were {numYLines} lines of y data read.')
         
         return datax, datay
+    
+    def readDataFromCsv(self, filename):
+        '''
+        Loads items from csv file
+        Args:
+          filename (string) : file with csv data
+        Returns:
+          xdata (ndarray (n,1)) : n rows of x data from file
+          ydata (ndarray (n,1)) : n rows of y data from file (last column from dataset)
+        '''
+        print(f'Reading data from file "{filename}"...', end='')
+        data = np.loadtxt(filename, delimiter=',')
+        print(' Done!')
+        print(f'Shape of data is : {str(data.shape)}')
+        
+        # splitting x feature data and y expected results
+        # expected should be the last column of the data set
+        xdata = data[:,:-1]
+        xdata = np.expand_dims(xdata, axis=1) # 1-d array to 2-d array
+        ydata = data[:,-1]
+        ydata = np.expand_dims(ydata, axis=1) # 1-d array to 2-d array
+        
+        return xdata, ydata
     

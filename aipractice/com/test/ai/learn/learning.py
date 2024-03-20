@@ -6,6 +6,7 @@ Created on Mar 2, 2024
 #
 # imports
 #
+import logging
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras as tfk #@UnresolvedImport
@@ -14,7 +15,11 @@ from tensorflow.keras.layers import Dense #@UnresolvedImport
 import matplotlib.pyplot as plt
 from com.test.ai.data.DataLoader import LoadData
 from sklearn.datasets import make_blobs 
-import logging
+# for building linear regression models and preparing data
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 
 #
 # setup
@@ -232,3 +237,185 @@ l2 = model.get_layer('layer2')
 W2, b2 = l2.get_weights()
 print(f'weights for layer2')
 print(f'W2: {W1}\n b2: {b1}')
+
+
+
+'''
+Predictions with sklearn and evaluating model
+'''
+print ('here we go with linear regression with sklearn and evaluating model')
+
+# data
+# will have: 60% data for training
+#            20% data for cross validation
+#            20% data for test
+#
+x, y = loadData.readDataFromCsv('test_data_csv_train.csv')
+# 60% data for training 40% for other
+xTrain, x_, yTrain, y_ = train_test_split(x, y, test_size=0.40, random_state=1)
+# split other 50% cv and 50% test 
+xCV, xTest, yCV, yTest = train_test_split(x_, y_, test_size=0.50, random_state=1)
+del x_, y_
+
+# perform feature scaling to help model converge faster.
+scalerLinear = StandardScaler()
+xTrainScaled = scalerLinear.fit_transform(xTrain)
+
+
+# create model
+linearModel = LinearRegression()
+
+# train model
+linearModel.fit(xTrainScaled, yTrain)
+
+# predict
+yhat = linearModel.predict(xTrain)
+print(f'training mean squared error: {mean_squared_error(yTrain, yhat) / 2}')
+
+# look at model with cross validation data
+xCVScaled = scalerLinear.transform(xCV)
+yhatCV = linearModel.predict(xCVScaled)
+print(f'cross validation mean squared error: {mean_squared_error(yCV, yhatCV) / 2')
+
+# 
+# now
+# manipulate data adding more features (degree var)
+# then create new model
+#
+poly = PolynomialFeatures(degree=2, include_bias=False)
+xTrainMapped = poly.fit_transform(xTrain)
+scalerPoly = StandardScaler()
+xTrainMappedScaled = scalerPoly.fit_transform(xTrainMapped)
+
+# create model
+model = LinearRegression()
+
+# train model
+model.fit(xTrainMappedScaled, yTrain )
+
+# predict
+yhatPoly = model.predict(xTrainMappedScaled)
+print(f'polynomial training MSE: {mean_squared_error(yTrain, yhatPoly) / 2}')
+
+# with cross validation data
+xCVMapped = poly.transform(xCV)
+xCVMappedScaled = scalerPoly.transform(xCVMapped)
+yhatCVMapped = model.predict(xCVMappedScaled)
+print(f'polynomial CV MSE: {mean_squared_error(yCV, yhatCVMapped) / 2}')
+
+#
+# now you add additional polys and find the lowest MSE
+# then add that poly to test data (degree=n 4,5,7,etc...) and predict + find mse
+# **not doing this ran out of time today**
+#
+
+
+
+'''
+Neural network finding the best number of nodes
+'''
+print ('here we go with finding best number of nodes in a neural network')
+
+#data
+x, y = loadData.readDataFromCsv('test_data_csv_train.csv')
+xTrain, x_, yTrain, y_ = train_test_split(x, y, test_size=0.40, random_state=1)
+xCV, xTest, yCV, yTest = train_test_split(x_, y_, test_size=0.50, random_state=1)
+del x_, y_
+
+# prep data
+degree = 1
+poly = PolynomialFeatures(degree, include_bias=False)
+xTrainMapped = poly.fit_transform(xTrain)
+xCVMapped = poly.transform(xCV)
+xTestMapped = poly.transform(xTest)
+
+scaler = StandardScaler()
+xTrainMappedScaled = scaler.fit_transform(xTrainMapped)
+xCVMappedScaled = scaler.transform(xCVMapped)
+xTestMappedScaled = scaler.transform(xTestMapped)
+
+# build test models
+nnTrainMSES = [] # mean squared error train data
+nnCVMSES = []    # mean squared error cv    data
+
+tf.random.set_seed(20)
+
+model1 = Sequential(
+    [
+        Dense(25, activation = 'relu'),
+        Dense(15, activation = 'relu'),
+        Dense(1, activation = 'linear')
+    ],
+    name='model1'
+)
+model2 = Sequential(
+    [
+        Dense(20, activation = 'relu'),
+        Dense(12, activation = 'relu'),
+        Dense(12, activation = 'relu'),
+        Dense(20, activation = 'relu'),
+        Dense(1, activation = 'linear')
+    ],
+    name='model2'
+)
+model3 = Sequential(
+    [
+        Dense(32, activation = 'relu'),
+        Dense(16, activation = 'relu'),
+        Dense(8, activation = 'relu'),
+        Dense(4, activation = 'relu'),
+        Dense(12, activation = 'relu'),
+        Dense(1, activation = 'linear')
+    ],
+    name='model3'
+)
+nnModels = [model1, model2, model3]
+
+# loop over the the models
+for model in nnModels:   
+    # setup the loss and optimizer
+    model.compile(
+    loss='mse', # if binary yes/no problem --> loss=tf.keras.losses.BinaryCrossentropy(from_logits=True)
+    optimizer=tfk.optimizers.Adam(learning_rate=0.1),
+    )
+    print(f'training {model.name}...',end='')
+    # train model
+    model.fit(
+        xTrainMappedScaled, yTrain,
+        epochs=300,
+        verbose=0
+    )
+    print('Done!')
+    
+    # record the training MSEs
+    yhat = model.predict(xTrainMappedScaled)
+    trainMSE = mean_squared_error(yTrain, yhat) / 2
+    nnTrainMSES.append(trainMSE)
+    
+    # record the cross validation MSEs 
+    yhat = model.predict(xCVMappedScaled)
+    cvMSE = mean_squared_error(yCV, yhat) / 2
+    nnCVMSES.append(cvMSE)
+    
+# print results
+print('RESULTS:')
+for modelNum in range(len(nnTrainMSES)):
+    print(
+        f'Model {modelNum+1}: Training MSE: {nnTrainMSES[modelNum]:.2f}, ' +
+        f'CV MSE: {nnCVMSES[modelNum]:.2f}'
+        )
+
+# now look at results and choose model with the lowest CV MSE
+# use the best model (for example model#3 will be different) against the test data
+modelNum = 3
+yhat = nnModels[modelNum-1].predict(xTestMappedScaled)
+testMSE = mean_squared_error(yTest, yhat) / 2
+print(f'selected model: {modelNum}')
+print(f'training MSE: {nnTrainMSES[modelNum-1]:.2f}')
+print(f'cross validation MSE: {nnCVMSES[modelNum-1]:.2f}')
+print(f'test MSE: {testMSE:.2f}')
+
+
+
+'''
+'''
