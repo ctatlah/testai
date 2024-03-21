@@ -14,8 +14,9 @@ from tensorflow.keras.models import Sequential #@UnresolvedImport
 from tensorflow.keras.layers import Dense #@UnresolvedImport
 import matplotlib.pyplot as plt
 from com.test.ai.data.DataLoader import LoadData
-from sklearn.datasets import make_blobs 
+#import com.test.ai.utils.dataUtils as dataUtil
 # for building linear regression models and preparing data
+from sklearn.datasets import make_blobs 
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 from sklearn.model_selection import train_test_split
@@ -26,6 +27,7 @@ from sklearn.metrics import mean_squared_error
 #
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
 tf.autograph.set_verbosity(0)
+loadData = LoadData()
 
 #
 # work
@@ -35,7 +37,6 @@ print ("here we go with the test app")
 
 # data
 #
-loadData = LoadData()
 x, y = loadData.readDataNpy('test_data_visual_predict_x.npy', 'test_data_visual_predict_y.npy')
 
 print ('The shape of x is: ' + str(x.shape))
@@ -135,9 +136,9 @@ plt.show()
 
 
 
-'''
-Multi class predictions
-'''
+#############
+# Multi class predictions
+#############
 print ('here we go with the test app for multi class predicitons')
 
 # make up data
@@ -153,8 +154,8 @@ model = Sequential(
     ]
 )
 model.compile(
-    loss=tf.keras.losses.SparseCategoricalCrossentropy(),
-    optimizer=tf.keras.optimizers.Adam(0.001),
+    loss=tfk.losses.SparseCategoricalCrossentropy(),
+    optimizer=tfk.optimizers.Adam(0.001),
 )
 
 model.fit(
@@ -175,8 +176,8 @@ betterMultiCatModel = Sequential(
     ]
 )
 betterMultiCatModel.compile(
-    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    optimizer=tf.keras.optimizers.Adam(0.001),
+    loss=tfk.losses.SparseCategoricalCrossentropy(from_logits=True),
+    optimizer=tfk.optimizers.Adam(0.001),
 )
 
 betterMultiCatModel.fit(
@@ -219,8 +220,8 @@ model = Sequential(
 )
 
 model.compile(
-    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    optimizer=tf.keras.optimizers.Adam(0.01),
+    loss=tfk.losses.SparseCategoricalCrossentropy(from_logits=True),
+    optimizer=tfk.optimizers.Adam(0.01),
 )
 
 model.fit(
@@ -240,9 +241,9 @@ print(f'W2: {W1}\n b2: {b1}')
 
 
 
-'''
-Predictions with sklearn and evaluating model
-'''
+#############
+# Predictions with sklearn and evaluating model
+#############
 print ('here we go with linear regression with sklearn and evaluating model')
 
 # data
@@ -275,7 +276,7 @@ print(f'training mean squared error: {mean_squared_error(yTrain, yhat) / 2}')
 # look at model with cross validation data
 xCVScaled = scalerLinear.transform(xCV)
 yhatCV = linearModel.predict(xCVScaled)
-print(f'cross validation mean squared error: {mean_squared_error(yCV, yhatCV) / 2')
+print(f'cross validation mean squared error: {mean_squared_error(yCV, yhatCV) / 2}')
 
 # 
 # now
@@ -311,9 +312,9 @@ print(f'polynomial CV MSE: {mean_squared_error(yCV, yhatCVMapped) / 2}')
 
 
 
-'''
-Neural network finding the best number of nodes
-'''
+#############
+# Neural network finding the best number of nodes
+#############
 print ('here we go with finding best number of nodes in a neural network')
 
 #data
@@ -416,6 +417,6 @@ print(f'cross validation MSE: {nnCVMSES[modelNum-1]:.2f}')
 print(f'test MSE: {testMSE:.2f}')
 
 
-
-'''
-'''
+#############
+#
+#############
