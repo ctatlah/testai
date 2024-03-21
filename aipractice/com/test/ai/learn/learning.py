@@ -417,7 +417,6 @@ print(f'cross validation MSE: {nnCVMSES[modelNum-1]:.2f}')
 print(f'test MSE: {testMSE:.2f}')
 
 
-
 #############
 #
 #############
