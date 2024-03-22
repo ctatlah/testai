@@ -35,6 +35,7 @@ loadData = LoadData()
 
 print ("here we go with the test app")
 
+
 # data
 #
 x, y = loadData.readDataNpy('test_data_visual_predict_x.npy', 'test_data_visual_predict_y.npy')
@@ -417,6 +418,84 @@ print(f'cross validation MSE: {nnCVMSES[modelNum-1]:.2f}')
 print(f'test MSE: {testMSE:.2f}')
 
 
+
 #############
-#
+# regularization on neural networks
+#############
+x, y = loadData.readDataFromCsv('test_data_csv_train2.csv')
+xTrain, x_, yTrain, y_ = train_test_split(x, y, test_size=0.40, random_state=1)
+xCV, xTest, yCV, yTest = train_test_split(x_, y_, test_size=0.50, random_state=1)
+del x_, y_
+
+
+nnLambda = 0.1
+tf.random.set_seed(1234)
+modelReg = Sequential(
+    [
+        Dense(120, activation = 'relu', kernel_regularizer=tfk.regularizers.l2(nnLambda)),
+        Dense(40, activation = 'relu', kernel_regularizer=tfk.regularizers.l2(nnLambda)),
+        Dense(1, activation = 'linear'),
+    ], name='nnReg'
+)
+modelReg.compile(
+    loss='mse',#tfk.losses.SparseCategoricalCrossentropy(from_logits=True),
+    optimizer=tfk.optimizers.Adam(0.01),
+)
+
+modelReg.fit(
+        xTrain,yTrain,
+        epochs=1000
+    )
+
+# to loop through and find best lambda
+lambdas = [0.0, 0.001, 0.01, 0.05, 0.1, 0.2, 0.3]
+models=[None] * len(lambdas)
+modelsMSEsForTrainingData = np.zeros(len(lambdas))
+modelsMSEsForCVData = np.zeros(len(lambdas))
+modelsMSEsForTestData = np.zeros(len(lambdas))
+
+for i in range(len(lambdas)):
+    lambda_ = lambdas[i]
+    # create model
+    models[i] =  Sequential(
+        [
+            Dense(120, activation = 'relu', kernel_regularizer=tfk.regularizers.l2(lambda_)),
+            Dense(40, activation = 'relu', kernel_regularizer=tfk.regularizers.l2(lambda_)),
+            Dense(1, activation = 'linear')
+        ]
+    )
+    models[i].compile(
+        loss='mse',#tfk.losses.SparseCategoricalCrossentropy(from_logits=True),
+        optimizer=tfk.optimizers.Adam(0.01),
+    )
+
+    #train model
+    models[i].fit(
+        xTrain,yTrain,
+        epochs=1000
+    )
+    
+    #evaluate model errors
+    predictionsOnTrainingData = models[i].predict(xTrain)
+    trainMSE = mean_squared_error(yTrain, predictionsOnTrainingData) / 2
+    modelsMSEsForTrainingData[i] = trainMSE
+    print(f'model{i} @lambda_{lambda_} training error: {trainMSE}')
+    
+    predictionsOnCVData = models[i].predict(xCV)
+    cvMSE = mean_squared_error(yCV, predictionsOnCVData) / 2
+    modelsMSEsForCVData[i] = cvMSE
+    print(f'model{i} @lambda_{lambda_} cv error: {cvMSE}')
+    
+    predictionsOnTestData = models[i].predict(xTest)
+    testMSE = mean_squared_error(yTest, predictionsOnTestData) / 2
+    modelsMSEsForTestData[i] = testMSE
+    print(f'model{i} @lambda_{lambda_} cv error: {testMSE}')
+
+print('REPORT:')
+for i in range(len(lambdas)):
+    print(f'model[{i}] @lambda_{lambdas[i]} training error: {modelsMSEsForTrainingData[i]:.2f}')
+    print(f'model[{i}] @lambda_{lambdas[i]} cv error: {modelsMSEsForCVData[i]:.2f}')
+    
+#############
+# 
 #############
