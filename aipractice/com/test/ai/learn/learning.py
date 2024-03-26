@@ -8,11 +8,12 @@ Created on Mar 2, 2024
 #
 import logging
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 import tensorflow as tf
 import tensorflow.keras as tfk #@UnresolvedImport
 from tensorflow.keras.models import Sequential #@UnresolvedImport
 from tensorflow.keras.layers import Dense #@UnresolvedImport
-import matplotlib.pyplot as plt
 from com.test.ai.data.DataLoader import LoadData
 #import com.test.ai.utils.dataUtils as dataUtil
 # for building linear regression models and preparing data
@@ -21,6 +22,10 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+from xgboost import XGBClassifier, XGBRegressor
 
 #
 # setup
@@ -34,7 +39,6 @@ loadData = LoadData()
 #
 
 print ("here we go with the test app")
-
 
 # data
 #
@@ -495,7 +499,142 @@ print('REPORT:')
 for i in range(len(lambdas)):
     print(f'model[{i}] @lambda_{lambdas[i]} training error: {modelsMSEsForTrainingData[i]:.2f}')
     print(f'model[{i}] @lambda_{lambdas[i]} cv error: {modelsMSEsForCVData[i]:.2f}')
+
+
+
+   
+#############
+# Decision Trees
+#############
+print('here we go with decision trees')
+
+def entropy(p):
+    if p == 0 or p == 1:
+        return 0
+    else:
+        return -p * np.log2(p) - (1- p)*np.log2(1 - p)
+        
+print(entropy(0.5))
+
+def weighted_entropy(x,y,left_indices,right_indices):
+    w_left = len(left_indices)/len(x)
+    w_right = len(right_indices)/len(x)
+    p_left = sum(y[left_indices])/len(left_indices)
+    p_right = sum(y[right_indices])/len(right_indices)
     
+    weighted_entropy = w_left * entropy(p_left) + w_right * entropy(p_right)
+    
+    return weighted_entropy
+
+def information_gain(x, y, left_indices, right_indices):
+    p_node = sum(y)/len(y)
+    h_node = entropy(p_node)
+    w_entropy = weighted_entropy(x,y,left_indices,right_indices)
+    return h_node - w_entropy
+
+
+print('XGBClassifier model creation')
+treeModelClassifcation = XGBClassifier() # decision tree for classification problems
+treeModelClassifcation.fit(x, y)
+prediction = treeModelClassifcation.predict(xTest)
+
+print('XGBRegressor model creation')
+treeModelRegression = XGBRegressor()  # decision tree for regression problems
+treeModelRegression.fit(x, y)
+prediction = treeModelRegression.predict(xTest)
+
+
+#data for deciscion trees
+print('setup data for deciscion trees')
+data = loadData.readCsv('tree_test_data.csv')
+data.head()
+
+# do one-hot encoding
+cat_variables = ['Sex', 'ChestPainType', 'RestingECG', 'ExerciseAngina', 'ST_Slope']
+data = pd.get_dummies(data = data,
+                         prefix = cat_variables,
+                         columns = cat_variables)
+data.head()
+
+features = [x for x in data.columns if x not in 'HeartDisease'] # choose all columns expect for 1
+xTrain, xValidation, yTrain, yValidation = train_test_split(data[features], data['HeartDisease'], train_size = 0.8, random_state = 55)
+
+print('more deciscion trees')
+minSamplesSplitList = [2, 10, 30, 50, 100, 200, 300, 700]
+maxDepthList = [1, 2, 3, 4, 8, 16, 32, 64, None]
+accuracyListTrain = []
+accuracyListValidation = []
+for minSamplesSplit in minSamplesSplitList:
+    # You can fit the model at the same time you define it, because the fit function returns the fitted estimator.
+    model = DecisionTreeClassifier(min_samples_split = minSamplesSplit,
+                                   random_state = 55).fit(xTrain,yTrain) 
+    predictionsTrain = model.predict(xTrain) ## The predicted values for the train dataset
+    predictionsValidation = model.predict(xValidation) ## The predicted values for the test dataset
+    accuracyTrain = accuracy_score(predictionsTrain,yTrain)
+    accuracyValidation = accuracy_score(predictionsValidation,yValidation)
+    accuracyListTrain.append(accuracyTrain)
+    accuracyListValidation.append(accuracyValidation)
+    
+plt.title('Train x Validation metrics')
+plt.xlabel('min_samples_split')
+plt.ylabel('accuracy')
+plt.xticks(ticks = range(len(minSamplesSplitList )),labels=minSamplesSplitList)
+plt.plot(accuracyListTrain)
+plt.plot(accuracyListValidation)
+plt.legend(['Train','Validation'])
+plt.show()
+
+# random forest
+print('now same thing but with random forest')
+minSamplesSplitList = [2, 10, 30, 50, 100, 200, 300, 700]
+maxDepthList = [2, 4, 8, 16, 32, 64, None]
+nEstimatorsList = [10, 50, 100, 500]
+
+accuracyListTrain = []
+accuracyListValidation = []
+
+for minSamplesSplit in minSamplesSplitList:
+    # You can fit the model at the same time you define it, because the fit function returns the fitted estimator.
+    model = RandomForestClassifier(min_samples_split = minSamplesSplit,
+                                   random_state = 55).fit(xTrain,yTrain) 
+    predictionsTrain = model.predict(xTrain) ## The predicted values for the train dataset
+    predictionsValidation= model.predict(xValidation) ## The predicted values for the test dataset
+    accuracyTrain = accuracy_score(predictionsTrain,yTrain)
+    accuracyValidation = accuracy_score(predictionsValidation,yValidation)
+    accuracyListTrain.append(accuracyTrain)
+    accuracyListValidation.append(accuracyValidation)
+
+plt.title('Train x Validation metrics')
+plt.xlabel('min_samples_split')
+plt.ylabel('accuracy')
+plt.xticks(ticks = range(len(minSamplesSplitList )),labels=minSamplesSplitList) 
+plt.plot(accuracyListTrain)
+plt.plot(accuracyListValidation)
+plt.legend(['Train','Validation'])
+plt.show()
+
+# do again now with maxDepthList and nEstimatorsList
+# not enough time today revisit tmrw
+
+randomForestModel = RandomForestClassifier(n_estimators = 100,
+                                             max_depth = 16, 
+                                             min_samples_split = 10).fit(xTrain,yTrain)
+
+#XGBoost
+print('now do it with XGBoost')
+n = int(len(xTrain)*0.8) # Let's use 80% to train and 20% to eval
+xTrainFit, xTrainEval, yTrainFit, yTrainEval = xTrain[:n], xTrain[n:], yTrain[:n], yTrain[n:]
+
+xgbModel = XGBClassifier(n_estimators=500, learning_rate=0.1, verbosity=1, random_state=55)
+xgbModel.fit(xTrainFit,yTrainFit, eval_set = [(xTrainEval, yTrainEval)], early_stopping_rounds=10)
+
+xgbModel.best_iteration
+print(f'XGBoost model best iteration = {xgbModel.best_iteration}')
+print(f'Metrics train:\tAccuracy score = {accuracy_score(xgbModel.predict(xTrain),yTrain):.4f}')
+print(f'Metrics test:\tAccuracy score = {accuracy_score(xgbModel.predict(xValidation),yValidation):.4f}')
+
+
+
 #############
 # 
 #############
