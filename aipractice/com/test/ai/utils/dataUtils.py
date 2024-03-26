@@ -63,3 +63,13 @@ def loadDataForModelEvaluations(filename):
     del x_, y_
     
     return xTrain, yTrain, xCrossValidataion, yCrossValidation, xTest, yTest
+
+def loadDataForDecisionTrees(filename):
+    '''
+    Loads data from CSV file to work with decision trees
+        Args:
+          fileName : CSV file to load data from
+        Return
+          data : data to work with
+    '''
+    return loadData.readCsv(filename)

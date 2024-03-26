@@ -4,8 +4,9 @@ Created on Mar 3, 2024
 @author: ctatlah
 '''
 
-import numpy as np
 import os
+import numpy as np
+import pandas as pd
 from pathlib import Path
 
 class LoadData(object):
@@ -152,4 +153,19 @@ class LoadData(object):
         #ydata = np.expand_dims(ydata, axis=1) # 1-d array to 2-d array
         
         return xdata, ydata
+    
+    def readCsv(self, filename):
+        '''
+        Uses pandas to loads data from csv file
+        Args:
+          filename (string) : file with csv data
+        Returns:
+          data : data from file
+        '''
+        print(f'Reading data from file "{filename}"...', end='')
+        fileToOpen = self.resFolder / filename
+        data = pd.read_csv(fileToOpen)
+        print(' Done!')
+        
+        return data
     
