@@ -58,29 +58,21 @@ class LoadData(object):
         datay = self.read(yfilename)
         return datax, datay
     
-    def readDataNpy(self, xfilename, yfilename):
+    def readDataNpy(self, filename):
         '''
-        Loads items from npy file
+        Loads items from one npy file
         Args:
-          xfilename (string) : npy type filename for x data
-          yfilename (string) : npy type filename for y data
+          filename (string) : npy type filename with data
         Returns:
-          xdata (ndarray (n)) : n rows of x data from file
-          ydata (ndarray (n)) : m rows of y data from file
+          data (ndarray (n)) : n rows of data from file
         '''
-        print(f'Loading x data from file "{xfilename}"...', end='')
-        xfileToOpen = self.resFolder / xfilename
-        X = np.load(xfileToOpen)
+        print(f'Loading data from file "{filename}"...', end='')
+        fileToOpen = self.resFolder / filename
+        data = np.load(fileToOpen)
         print('Done!')
-        print(f'Shape of x is : {str(X.shape)}')
+        print(f'Shape of data is : {str(data.shape)}')
         
-        print(f'Loading y data from file "{yfilename}"...', end='')
-        yfileToOpen = self.resFolder / yfilename
-        y = np.load(yfileToOpen)
-        print('Done!')
-        print(f'Shape of y is : {str(y.shape)}')
-        
-        return X, y
+        return data
     
     def readTrainingData(self, filename):
         '''

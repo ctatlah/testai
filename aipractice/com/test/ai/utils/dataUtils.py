@@ -21,8 +21,12 @@ def loadDataForNumberPerdiction():
       y (narray(n)) : actual value of that visual data (0 or 1)
     '''
     
-    x, y = loadData.readDataNpy('test_data_visual_predict_x.npy', 
-                                'test_data_visual_predict_y.npy')
+    print('Loading x data:')
+    x = loadData.readDataNpy('test_data_visual_predict_x.npy')
+    
+    print('Loading y data:') 
+    y = loadData.readDataNpy('test_data_visual_predict_y.npy')
+    
     x = x[0:1000]
     y = y[0:1000]
     
@@ -37,9 +41,14 @@ def loadDataForFullNumberPerdiction():
           x (narray(n)) : visual data data (picture of digits from 0 through 9)
           y (narray(n)) : actual value of that visual data (0 through 9)
     '''
-    return loadData.readDataNpy('test_data_visual_predict_x.npy', 
-                                'test_data_visual_predict_y.npy')
+    print('Loading x data:')
+    x = loadData.readDataNpy('test_data_visual_predict_x.npy') 
     
+    print('Loading y data:')
+    y = loadData.readDataNpy('test_data_visual_predict_y.npy')
+    
+    return x, y
+
 def loadDataForModelEvaluations(filename):
     '''
     Loads data from a csv and splits it into training, cross validation, and test data sets.
@@ -83,3 +92,24 @@ def loadImageData(filename):
       image : image data
     '''
     return loadData.loadImage(filename)
+
+def loadDataForAnomolyDetection(xFilename, xCVFilename, yCVFilename):
+    '''
+    Load data for anomoly detection example
+    Args:
+      xFilename (string) : file name for x data
+      xCVFilename (string) : file name for x cross validation data
+      yCVFilename (string) : file name for y cross validation data
+    Returns:
+      x (ndarray) : x data
+      xCrossValidation (ndarray) : x cross validation data
+      yCrossValidation (ndarray) : y cross validation data
+    '''
+    print('Loading x train data:')
+    x = loadData.readDataNpy(xFilename)
+    print('Loading x cv data:')
+    xCrossValidation = loadData.readDataNpy(xCVFilename)
+    print('Loading y cv data:')
+    yCrossValidation = loadData.readDataNpy(yCVFilename)
+    
+    return x, xCrossValidation, yCrossValidation
