@@ -73,3 +73,13 @@ def loadDataForDecisionTrees(filename):
           data : data to work with
     '''
     return loadData.readCsv(filename)
+
+def loadImageData(filename):
+    '''
+    Load an image
+    Args:
+      filename (string) : image file
+    Returns:
+      image : image data
+    '''
+    return loadData.loadImage(filename)

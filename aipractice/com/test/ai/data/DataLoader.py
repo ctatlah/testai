@@ -7,6 +7,7 @@ Created on Mar 3, 2024
 import os
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from pathlib import Path
 
 class LoadData(object):
@@ -168,4 +169,15 @@ class LoadData(object):
         print(' Done!')
         
         return data
+    
+    def loadImage(self, filename):
+        '''
+        Uses matplotlib to load an image
+        Args:
+          filename (string) : image file
+        Returns:
+          image : image data
+        '''
+        fileToOpen = self.resFolder / filename
+        return plt.imread(fileToOpen)
     
