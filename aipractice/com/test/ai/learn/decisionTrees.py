@@ -12,6 +12,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier, XGBRegressor
+from mpmath import limit
 
 #
 # setup
@@ -35,11 +36,6 @@ data = pd.get_dummies(data = data,
 
 features = [x for x in data.columns if x not in 'HeartDisease'] # choose all columns expect for 1
 xTrain, xValidation, yTrain, yValidation = train_test_split(data[features], data['HeartDisease'], train_size = 0.8, random_state = 55)
-
-# generated data that represents mushrooms. Cap Color Brown | Stalk Shape Tapered | Solitary | Edible
-xGenTrain = np.array([[1,1,1],[1,0,1],[1,0,0],[1,0,0],[1,1,1],[0,1,1],[0,0,0],[1,0,1],[0,1,0],[1,0,0]])
-yGenTrain = np.array([1,1,0,0,1,0,0,1,1,0])
-
 
 # working with random forest
 #
@@ -74,7 +70,8 @@ plt.show()
 
 # working with XGBoost
 #
-print('XGBoost example')
+print('XGBoost examples')
+print('example1:')
 n = int(len(xTrain)*0.8) # Let's use 80% to train and 20% to eval
 xTrainFit, xTrainEval, yTrainFit, yTrainEval = xTrain[:n], xTrain[n:], yTrain[:n], yTrain[n:]
 
@@ -86,4 +83,24 @@ print(f'XGBoost model best iteration = {xgbModel.best_iteration}')
 print(f'Metrics train:\tAccuracy score = {accuracy_score(xgbModel.predict(xTrain),yTrain):.4f}')
 print(f'Metrics test:\tAccuracy score = {accuracy_score(xgbModel.predict(xValidation),yValidation):.4f}')
 
+# generated data that represents mushrooms. Cap Color Brown | Stalk Shape Tapered | Solitary | Edible
+print('example2:')
+xGenData = np.array([[1,1,1],[1,0,1],[1,0,0],[1,0,0],[1,1,1],[0,1,1],[0,0,0],[1,0,1],[0,1,0],[1,0,0],
+                     [1,1,1],[1,0,1],[1,0,0],[1,0,0],[1,1,1],[0,1,1],[0,0,0],[1,0,1],[0,1,0],[1,0,0],
+                     [1,1,1],[1,0,1],[1,0,0],[1,0,0],[1,1,1],[0,1,1],[0,0,0],[1,0,1],[0,1,0],[1,0,0]])
+yGenData = np.array([1,1,0,0,1,0,0,1,1,0,
+                     1,1,0,0,1,0,0,1,1,0,
+                     1,1,0,0,1,0,0,1,1,0])
+
+limit = int(len(xGenData)*0.8)
+xGenTrain, yGenTrain, xGenTest, yGenTest = xGenData[:limit], yGenData[:limit], xGenData[limit:], yGenData[limit:]
+limit = int(len(xGenTrain)*0.8)
+xGenFit, yGenFit, xGenEval, yGenEval = xGenTrain[:limit], yGenTrain[:limit], xGenTrain[limit:], yGenTrain[limit:]
+
+xgbGenModel = XGBClassifier(n_estimators=50, learning_rate=0.1, verbosity=1, random_state=55)
+xgbGenModel.fit(xGenFit,yGenFit, eval_set = [(xGenEval, yGenEval)], early_stopping_rounds=10)
+xgbGenModel.best_iteration
+print(f'XGBoost model best iteration = {xgbGenModel.best_iteration}')
+print(f'Metrics train:\tAccuracy score = {accuracy_score(xgbGenModel.predict(xGenData),yGenData):.4f}')
+print(f'Metrics test:\tAccuracy score = {accuracy_score(xgbGenModel.predict(xGenTest),yGenTest):.4f}')
 
