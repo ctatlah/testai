@@ -25,6 +25,9 @@ xTrain, xCV, yCV = dataUtil.loadDataForAnomolyDetection(
     'anomoly_test_x_val1.npy', 
     'anomoly_test_y_val1.npy')
 
+print('xtrain data:')
+print(xTrain)
+
 # visualize data
 plt.scatter(xTrain[:, 0], xTrain[:, 1], marker='x', c='b') 
 plt.title("The first dataset")
@@ -35,14 +38,19 @@ plt.show()
 
 # calculate mean of every feature and variance
 mu, var = aiUtil.estimate_gaussian(xTrain)              
-print(f'Mean of each feature: {mu}', mu)
-print(f'Variance of each feature: {var}', var)
+print(f'Mean of each feature: {mu}')
+print(f'Variance of each feature: {var}')
 
-# returns the density of the multivariate normal at each data point (row) of xTrain
+# getting the probability of each row in xTrain (density estimation)
+# that will be compared to epsilon threshold
 p = aiUtil.multivariate_gaussian(xTrain, mu, var)
+print('p:')
+print(p)
 visUtil.visualize_anomoly_fit(xTrain, mu, var)
 
 pCV = aiUtil.multivariate_gaussian(xCV, mu, var)
+print('pCV:')
+print(pCV)
 epsilon, F1 = aiUtil.select_anomoly_threshold(yCV, pCV)
 
 print(f'Best epsilon found using cross-validation: {epsilon}')
@@ -74,11 +82,23 @@ xTrainHigh, xCVHigh, yCVHigh = dataUtil.loadDataForAnomolyDetection(
     'anomoly_test_x_val2.npy', 
     'anomoly_test_y_val2.npy')
 
+# visualize data
+plt.scatter(xTrainHigh[:, 0], xTrainHigh[:, 1], marker='x', c='b') 
+plt.title('Multi dimentional dataset')
+plt.ylabel('Throughput (mb/s)')
+plt.xlabel('Latency (ms)')
+plt.axis([0, 30, 0, 30])
+plt.show()
+
 # evaluate
 muHigh, varHigh = aiUtil.estimate_gaussian(xTrainHigh)
 pHigh = aiUtil.multivariate_gaussian(xTrainHigh, muHigh, varHigh)
 pCVHigh = aiUtil.multivariate_gaussian(xCVHigh, muHigh, varHigh)
 epsilonHigh, F1High = aiUtil.select_anomoly_threshold(yCVHigh, pCVHigh)
+print(f'Mean of each feature: {muHigh}')
+print(f'Variance of each feature: {varHigh}')
 print(f'Best epsilon found using cross-validation: {epsilonHigh}')
 print(f'Best F1 on Cross Validation Set:  {F1High}')
 print(f'# Anomalies found: {sum(pHigh < epsilonHigh)}')
+outliersHigh = pHigh < epsilonHigh
+print(f'These are the anomolies:\n{outliersHigh}')
