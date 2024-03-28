@@ -34,7 +34,9 @@ K = 16
 maxIters = 10
 
 initialCentroids = kMeansUtil.kMeans_init_centroids(xImg, K)
-centroids, idx = kMeansUtil.run_kMeans(xImg, initialCentroids, maxIters)
+print(f'initial centroids:{initialCentroids}')
+centroids, idx = kMeansUtil.run_kMeans(xImg, initialCentroids, maxIters, plot_progress=True)
+print(f'centroids:{centroids}')
 print(f'shape of idx:{idx.shape}')
 print(f'closest centroid for the first five elements:{idx[:5]}')
 kMeansUtil.plot_kMeans_RGB(xImg, centroids, idx, K)
@@ -57,7 +59,6 @@ plt.axis('off')
 ax[0].imshow(image)
 ax[0].set_title('Original')
 ax[0].set_axis_off()
-plt.show()
 
 # Display compressed image
 ax[1].imshow(imageCompressed)

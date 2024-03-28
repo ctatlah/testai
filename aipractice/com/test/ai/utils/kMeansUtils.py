@@ -24,7 +24,7 @@ def find_closest_centroids(X, centroids):
     K = centroids.shape[0]
     idx = np.zeros(X.shape[0], dtype=int)
     
-    for i in range(K):
+    for i in range(X.shape[0]):
         # Array to hold distance between X[i] and each centroids[j]
         distance = [] 
         for j in range(centroids.shape[0]):
@@ -99,7 +99,7 @@ def run_kMeans(X, initial_centroids, max_iters=10, plot_progress=False):
     for i in range(max_iters):
         
         #Output progress
-        print("K-Means iteration %d/%d" % (i, max_iters-1))
+        print("K-Means iteration %d/%d" % (i+1, max_iters))
         
         # For each example in X, assign it to the closest centroid
         idx = find_closest_centroids(X, centroids)
