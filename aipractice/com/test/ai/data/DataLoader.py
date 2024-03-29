@@ -129,8 +129,7 @@ class LoadData(object):
         Args:
           filename (string) : file with csv data
         Returns:
-          xdata (ndarray (n,1)) : n rows of x data from file
-          ydata (ndarray (n,1)) : n rows of y data from file (last column from dataset)
+          data (ndarray (n,1)) : n rows of data from file
         '''
         print(f'Reading data from file "{filename}"...', end='')
         fileToOpen = self.resFolder / filename
@@ -138,14 +137,7 @@ class LoadData(object):
         print(' Done!')
         print(f'Shape of data is : {str(data.shape)}')
         
-        # splitting x feature data and y expected results
-        # expected should be the last column of the data set
-        xdata = data[:,:-1]
-        #xdata = np.expand_dims(xdata, axis=1) # 1-d array to 2-d array
-        ydata = data[:,-1]
-        #ydata = np.expand_dims(ydata, axis=1) # 1-d array to 2-d array
-        
-        return xdata, ydata
+        return data
     
     def readCsv(self, filename):
         '''

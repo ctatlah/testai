@@ -5,7 +5,7 @@ Created on Mar 3, 2024
 
 Wrapper for DataLoader to load test and training data for learning examples
 '''
-
+import pandas as pd
 from com.test.ai.data.DataLoader import LoadData
 from sklearn.model_selection import train_test_split
 
@@ -63,7 +63,13 @@ def loadDataForModelEvaluations(filename):
           xTest (narray(n)) : x test data
           yTest (narray(n)) : y test data
     '''
-    x, y = loadData.readDataFromCsv(filename)
+    d = loadData.readDataFromCsv(filename)
+    
+    # splitting x feature data and y expected results
+    # expected should be the last column of the data set
+    x = d[:,:-1]
+    y = d[:,-1]
+    
     # 60% data for training 40% for other
     xTrain, x_, yTrain, y_ = train_test_split(x, y, test_size=0.40, random_state=1)
     # split other 50% cv and 50% test 
@@ -113,3 +119,28 @@ def loadDataForAnomolyDetection(xFilename, xCVFilename, yCVFilename):
     yCrossValidation = loadData.readDataNpy(yCVFilename)
     
     return x, xCrossValidation, yCrossValidation
+
+def loadDataForRecomendationsPreCalc():
+    x = loadData.readDataFromCsv('small_movies_X.csv')
+    w = loadData.readDataFromCsv('small_movies_W.csv')
+    b = loadData.readDataFromCsv('small_movies_b.csv')
+    b = b.reshape(1,-1)
+    
+    numMovies, numFeatures = x.shape
+    numUsers,_ = w.shape
+    
+    return(x, w, b, numMovies, numFeatures, numUsers)
+
+def loadDataForRecomendationsRatings():
+    y = loadData.readDataFromCsv('small_movies_Y.csv')
+    r = loadData.readDataFromCsv('small_movies_R.csv')
+    return(y, r)
+
+def loadDataForRecommendationsMovieList():
+    ''' 
+    Returns df with and index of movies in the order they are in in the Y matrix 
+    '''
+    filename = '/Users/ctatlah/git/testai/aipractice/com/test/ai/resources/small_movie_list.csv'
+    dataFile = pd.read_csv(filename, header=0, index_col=0,  delimiter=',', quotechar='"')
+    movieList = dataFile['title'].to_list()
+    return(movieList, dataFile)
