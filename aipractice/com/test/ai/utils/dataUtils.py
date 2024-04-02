@@ -5,9 +5,14 @@ Created on Mar 3, 2024
 
 Wrapper for DataLoader to load test and training data for learning examples
 '''
+import csv
+import pickle
 import pandas as pd
 from com.test.ai.data.DataLoader import LoadData
 from sklearn.model_selection import train_test_split
+from numpy import genfromtxt
+from collections import defaultdict
+
 
 loadData = LoadData()
 
@@ -140,7 +145,65 @@ def loadDataForRecommendationsMovieList():
     ''' 
     Returns df with and index of movies in the order they are in in the Y matrix 
     '''
-    filename = '/Users/ctatlah/git/testai/aipractice/com/test/ai/resources/small_movie_list.csv'
+    filename = loadData.resFolder / 'small_movie_list.csv'
     dataFile = pd.read_csv(filename, header=0, index_col=0,  delimiter=',', quotechar='"')
     movieList = dataFile['title'].to_list()
     return(movieList, dataFile)
+
+def loadDataForMovieRecommendationSystem():
+    ''' 
+    Load data for recommendationSystem2.py
+    '''
+    print(f'Reading data for Recommendation System from files...', end='')
+    fileToOpenItemTrain = loadData.resFolder / 'content_item_train.csv'
+    fileToOpenUserTrain = loadData.resFolder / 'content_user_train.csv'
+    fileToOpenYTrain = loadData.resFolder / 'content_y_train.csv'
+    fileToOpenItemTrainHeader = loadData.resFolder / 'content_item_train_header.txt'
+    fileToOpenUserTrainHeader= loadData.resFolder / 'content_user_train_header.txt'
+    fileToOpenItemVecs = loadData.resFolder / 'content_item_vecs.csv'
+    fileToOpenMovieList = loadData.resFolder / 'content_movie_list.csv'
+    fileToOpenUserToGenre = loadData.resFolder / 'content_user_to_genre.pickle'
+    
+    itemTrain = genfromtxt(fileToOpenItemTrain, delimiter=',')
+    userTrain = genfromtxt(fileToOpenUserTrain, delimiter=',')
+    yTrain = genfromtxt(fileToOpenYTrain, delimiter=',')
+    
+    # csv reader handles quoted strings better
+    with open(fileToOpenItemTrainHeader, newline='') as f:    
+        itemFeatures = list(csv.reader(f))[0]
+    with open(fileToOpenUserTrainHeader, newline='') as f:
+        userFeatures = list(csv.reader(f))[0]
+    itemVecs = genfromtxt(fileToOpenItemVecs, delimiter=',')
+
+    # Create movie dictionary
+    movieDict = defaultdict(dict)
+    count = 0
+    with open(fileToOpenMovieList, newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        for line in reader:
+            if count == 0:
+                count += 1  #skip header
+            else:
+                count += 1
+                movieId = int(line[0])
+                movieDict[movieId]['title'] = line[1]
+                movieDict[movieId]['genres'] = line[2]
+
+    with open(fileToOpenUserToGenre, 'rb') as f:
+        userToGenre = pickle.load(f)
+        
+    print('Done!')
+
+    return(itemTrain, 
+           userTrain, 
+           yTrain, 
+           itemFeatures, 
+           userFeatures, 
+           itemVecs, 
+           movieDict, 
+           userToGenre)
+
+def loadDataForMovieRecommendationSystemMovieRatingDataSet():
+    top10DataFile = loadData.readCsv('content_top10_df.csv')
+    byGenreDataFile = loadData.readCsv('content_bygenre_df.csv')
+    return(top10DataFile, byGenreDataFile)
