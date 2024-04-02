@@ -3,7 +3,7 @@ Created on Mar 3, 2024
 
 @author: ctatlah
 '''
-
+import tabulate
 import numpy as np
 import matplotlib.pyplot as plt
 import com.test.ai.utils.aiUtils as aiUtil
@@ -68,3 +68,42 @@ def visualize_anomoly_fit(X, mu, var):
     plt.ylabel('Throughput (mb/s)')
     # Set the x-axis label
     plt.xlabel('Latency (ms)')
+    
+def recommendation_system_pprint_train(x_train, features, vs, u_s, maxcount=5, user=True):
+    """ Prints user_train or item_train nicely """
+    if user:
+        flist = [".0f", ".0f", ".1f",
+                 ".1f", ".1f", ".1f", ".1f", ".1f", ".1f", ".1f", ".1f", ".1f", ".1f", ".1f", ".1f", ".1f", ".1f"]
+    else:
+        flist = [".0f", ".0f", ".1f", 
+                 ".0f", ".0f", ".0f", ".0f", ".0f", ".0f", ".0f", ".0f", ".0f", ".0f", ".0f", ".0f", ".0f", ".0f"]
+
+    head = features[:vs]
+    if vs < u_s: print("error, vector start {vs} should be greater then user start {u_s}")
+    for i in range(u_s):
+        head[i] = "[" + head[i] + "]"
+    genres = features[vs:]
+    hdr = head + genres
+    disp = [split_str(hdr, 5)]
+    count = 0
+    for i in range(0, x_train.shape[0]):
+        if count == maxcount: break
+        count += 1
+        disp.append([x_train[i, 0].astype(int),
+                     x_train[i, 1].astype(int),
+                     x_train[i, 2].astype(float),
+                     *x_train[i, 3:].astype(float)
+                    ])
+    table = tabulate.tabulate(disp, tablefmt='html', headers="firstrow", floatfmt=flist, numalign='center')
+    return table
+
+def split_str(ifeatures, smax):
+    ''' split the feature name strings to tables fit '''
+    ofeatures = []
+    for s in ifeatures:
+        if not ' ' in s:  # skip string that already have a space
+            if len(s) > smax:
+                mid = int(len(s)/2)
+                s = s[:mid] + " " + s[mid:]
+        ofeatures.append(s)
+    return ofeatures

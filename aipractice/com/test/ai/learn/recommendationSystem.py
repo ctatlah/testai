@@ -11,7 +11,7 @@ import numpy as np
 import tensorflow as tf
 import com.test.ai.utils.dataUtils as dataUtil
 import com.test.ai.utils.recommendUtils as recUtil
-from tensorflow import keras
+from tensorflow import keras #@UnresolvedImport
 
 #
 # setup
@@ -106,7 +106,7 @@ lambda_ = 1
 tf.random.set_seed(1234) # for consistent results
 W = tf.Variable(tf.random.normal((numUsers,  numFeatures), dtype=tf.float64),  name='W')
 X = tf.Variable(tf.random.normal((numMovies, numFeatures), dtype=tf.float64),  name='X')
-b = tf.Variable(tf.random.normal((1,         numUsers),   dtype=tf.float64),  name='b')
+b = tf.Variable(tf.random.normal((1,         numUsers),    dtype=tf.float64),  name='b')
 
 # Instantiate an optimizer.
 optimizer = keras.optimizers.Adam(learning_rate=1e-1)
