@@ -12,20 +12,22 @@ import openai
 from openai import OpenAI
 from typing_extensions import override
 from openai import AssistantEventHandler
+from dotenv import load_dotenv
 
 def get_openai_key():
     """
-    Hack to get the key from .env file.
-    TODO : Look into why environ not getting key set in .zprofile and
-           why OpenAI provided solution didnt work.
+    Retrieves OpenAI API Key
     Args:
       none
     Returns:
       String : openai api key
     """
-    #key = os.environ.get("OPENAI_API_KEY")
-    f = open(".env", "r")
-    key = f.read().split("=")[1]   
+    load_dotenv()
+    key = os.environ.get("OPENAI_API_KEY")
+    
+    #f = open(".env", "r")
+    #key = f.read().split("=")[1]   
+    
     return key
     
 def chatgpt_response(client, assistant, thread, uinput):
