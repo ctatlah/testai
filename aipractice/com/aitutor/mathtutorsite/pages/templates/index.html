@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Tutor for little one</title>
+  <script src="{{ url_for('static', filename='js/MathTutor.js') }}"></script>
+</head>
+<body>
+  <h1>Math Tutor</h1>
+  <p>What math problem can I help you with today?</p>
+  <textarea id="user-input" rows="4" cols="50"></textarea>
+  <br>
+  <button onclick="sendMessage()">Send</button>
+  <div id="status" style="visbility:hidden"></div>
+  <br>
+  <p>Answer:</p>
+  <div id="answer"></div>
+  <p><div id="error" style="visbility:hidden"></div></p>
+</body>
+</html>
