@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Talk to Me</title>
+</head>
+<body>
+	<audio id="recording-audio" controls></audio>
+	<br/>
+ 	<button id="start-recording-btn">Start Recording</button>
+  	<button id="end-recording-btn" disabled>Stop Recording</button>
+  	<p><div id="speech-text"></div></p>
+  	<p><div id="error" style="visbility:hidden"></div></p>
+  	<script src="{{ url_for('static', filename='js/speech.js') }}"></script>
+</body>
+</html>
